@@ -1,49 +1,24 @@
-import uuid
-import json
-import os
-import platform
-import sys
+import uuid, json, os, platform
 
-def generate_random_id():
-    return str(uuid.uuid4())
-
-def get_config_path():
-    # 统一处理配置文件路径
-    if getattr(sys, 'frozen', False):
-        # 如果是打包后的可执行文件
-        application_path = os.path.dirname(sys.executable)
-    else:
-        # 如果是脚本运行
-        application_path = os.path.dirname(os.path.abspath(__file__))
-    
-    if platform.system() == 'Darwin':  # macOS
-        return os.path.expanduser('~/Library/Application Support/Cursor/User/globalStorage/storage.json')
-    else:  # Windows
-        return os.path.join(os.getenv('APPDATA'), 'Cursor', 'User', 'globalStorage', 'storage.json')
-
-def update_storage_json(new_uuid):
-    config_path = get_config_path()
-    
+def update_machine_id():
     try:
-        with open(config_path, 'r', encoding='utf-8') as file:
-            config = json.load(file)
+        path = os.path.join(
+            os.path.expanduser('~/Library/Application Support/Cursor') if platform.system() == 'Darwin' 
+            else os.path.join(os.getenv('APPDATA'), 'Cursor'),
+            'User/globalStorage/storage.json'
+        )
         
-        config["telemetry.macMachineId"] = new_uuid
-        
-        with open(config_path, 'w', encoding='utf-8') as file:
-            json.dump(config, file, indent=4)
-            
-        print(f"成功更新 UUID 为: {new_uuid}")
-        
-    except FileNotFoundError:
-        print(f"错误：找不到配置文件\n路径: {config_path}")
-    except json.JSONDecodeError:
-        print("错误：配置文件格式不正确")
+        with open(path, 'r+', encoding='utf-8') as f:
+            config = json.load(f)
+            config["telemetry.macMachineId"] = str(uuid.uuid4())
+            f.seek(0)
+            json.dump(config, f, indent=4)
+            f.truncate()
+            print(f"成功更新 UUID 为: {config['telemetry.macMachineId']}")
     except Exception as e:
-        print(f"发生错误: {str(e)}")
+        print(f"错误: {e}\n配置文件路径: {path}")
 
 if __name__ == "__main__":
-    new_id = generate_random_id()
-    update_storage_json(new_id)
+    update_machine_id()
     input("\n按回车键退出...")
 
