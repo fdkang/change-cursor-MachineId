@@ -2,7 +2,7 @@
 
 > 🔥 一秒重置Cursor设备ID，告别封禁困扰！
 > 
-> ⚡️ 支持 Windows/macOS 双平台，一键解决设备限制问题
+> ⚡️ 支持 Windows/macOS 双平台，一键解决设备限制问题（如：Too many free trials.）
 
 ## ✨ 为什么选择这个工具？
 
